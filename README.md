@@ -12,7 +12,11 @@ Ed25519 is an elliptic curve signing algorithm using EdDSA and Curve25519.
 
 ## 🔑 What is Age
 
-Age a simple, modern, and secure file encryption tool (alternative to GPG).
+Age a simple, modern, and secure file encryption tool (alternative to GPG).\
+
+## 📃 Purpose of this lib
+
+Take an SSH key and transform it to an Age key.
 
 ## 🤝 Acknowledgements
 
