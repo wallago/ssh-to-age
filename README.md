@@ -1,6 +1,6 @@
 # 🔁 ssh-to-age
 
-Convert SSH Ed25519 keys to age keys. This is useful for usage in [sops-nix](https://github.com/Mic92/sops-nix) and [sops](https://github.com/getsops/sops).\
+Convert SSH Ed25519 keys to age keys. This is useful for usage in [sops-nix](https://github.com/Mic92/sops-nix) and [sops](https://github.com/getsops/sops).
 
 This crate fills a gap in the Rust ecosystem: there is currently no Rust-native library to convert Ed25519 SSH keys into [age](https://github.com/FiloSottile/age) compatible X25519 keys.\
 Crate like [rage](https://github.com/str4d/rage), doesn't convert my ssh key as exepected.\
