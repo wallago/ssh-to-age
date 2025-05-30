@@ -1,7 +1,17 @@
 [package]
-name = "tqt"
+name = "ssh-to-age"
 version = "0.1.0"
 edition = "2024"
+authors = ["wallago <henrotte.hugo@gmail.com>"]
+description = "Convert OpenSSH Ed25519 keys to age encryption keys."
+license = "Apache-2.0"
+repository = "https://github.com/wallago/ssh-to-age"
+homepage = "https://github.com/wallago/ssh-to-age"
+documentation = "https://docs.rs/ssh-to-age"
+readme = "README.md"
+keywords = ["age", "ssh", "ed25519", "encryption", "sops"]
+categories = ["cryptography"]
+exclude = ["/.github", "/.gitignore", "/target"]
 
 [dependencies]
 anyhow = "1.0.98"
