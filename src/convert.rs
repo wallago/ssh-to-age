@@ -70,8 +70,17 @@ pub struct AgeKeyPair {
 ///
 /// # Example
 ///
-/// ```no_run
-/// let age = ssh_private_key_to_age(include_bytes!("id_ed25519")).unwrap();
+/// ```
+/// use ssh_to_age::convert::ssh_private_key_to_age;
+///
+/// let openssh_sk = b"-----BEGIN OPENSSH PRIVATE KEY-----
+/// b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+/// QyNTUxOQAAACAha7OTp4GBg+RR1GmKq94AJOzQKQLhQi93FWhy0lkVywAAAJDFKuT1xSrk
+/// 9QAAAAtzc2gtZWQyNTUxOQAAACAha7OTp4GBg+RR1GmKq94AJOzQKQLhQi93FWhy0lkVyw
+/// AAAECfpgF0oYy6xXA5JRzgTNwNYLcUIGlZhkOEDV7XRuIYWyFrs5OngYGD5FHUaYqr3gAk
+/// 7NApAuFCL3cVaHLSWRXLAAAADHJvb3RAb2N0b3B1cwE=
+/// -----END OPENSSH PRIVATE KEY-----";
+/// let age = ssh_private_key_to_age(openssh_sk).unwrap();
 /// println!("Recipient: {}", age.recipient);
 /// ```
 pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
@@ -101,8 +110,11 @@ pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
 ///
 /// # Example
 ///
-/// ```no_run
-/// let recipient = ssh_public_key_to_age("ssh-ed25519 AAAAC3...").unwrap();
+/// ```
+/// use ssh_to_age::convert::ssh_public_key_to_age;
+///
+/// let openssh_pk = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICFrs5OngYGD5FHUaYqr3gAk7NApAuFCL3cVaHLSWRXL";
+/// let recipient = ssh_public_key_to_age(openssh_pk).unwrap();
 /// println!("age recipient: {}", recipient);
 /// ```
 pub fn ssh_public_key_to_age(openssh_pk: &str) -> Result<String> {
