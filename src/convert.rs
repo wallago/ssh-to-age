@@ -54,6 +54,26 @@ pub struct AgeKeyPair {
     pub recipient: String,
 }
 
+/// Converts an OpenSSH Ed25519 private key (in byte form) into `age`
+/// compatible secret and recipient strings.
+///
+/// The secret is formatted as a Bech32m string with the "AGE-SECRET-KEY-" prefix (in uppercase),
+/// and the recipient is a Bech32m-encoded X25519 public key with the "age" prefix.
+///
+/// # Arguments
+///
+/// * `openssh_sk` - Byte slice containing the OpenSSH-formatted Ed25519 private key.
+///
+/// # Errors
+///
+/// Returns an error if the SSH private key is not valid Ed25519 format or if conversion fails.
+///
+/// # Example
+///
+/// ```no_run
+/// let age = ssh_private_key_to_age(include_bytes!("id_ed25519")).unwrap();
+/// println!("Recipient: {}", age.recipient);
+/// ```
 pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
     let ssh_sk = PrivateKey::from_openssh(openssh_sk)?;
     let ed_keypair = ssh_sk
@@ -68,6 +88,23 @@ pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
     })
 }
 
+/// Converts an OpenSSH Ed25519 public key (as a string) into an `age` recipient
+/// string compatible with `age`'s X25519 format (Bech32m with "age" prefix).
+///
+/// # Arguments
+///
+/// * `openssh_pk` - OpenSSH-formatted Ed25519 public key string (e.g. from `~/.ssh/id_ed25519.pub`).
+///
+/// # Errors
+///
+/// Returns an error if the SSH public key is invalid or not an Ed25519 key.
+///
+/// # Example
+///
+/// ```no_run
+/// let recipient = ssh_public_key_to_age("ssh-ed25519 AAAAC3...").unwrap();
+/// println!("age recipient: {}", recipient);
+/// ```
 pub fn ssh_public_key_to_age(openssh_pk: &str) -> Result<String> {
     let ssh_pk = PublicKey::from_openssh(openssh_pk)?;
     let ed_pk = ssh_pk
