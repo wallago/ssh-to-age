@@ -88,12 +88,10 @@ pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
     let ed_keypair = ssh_sk
         .key_data()
         .ed25519()
-        .ok_or(anyhow!("Invalid Ed25519 private key format"))?;
-    let curve_pk = encode_public_key(&ed_keypair.public.0)?;
-    let curve_sk = encode_private_key(&ed_keypair.private.to_bytes())?;
+        .ok_or_else(|| anyhow!("Invalid Ed25519 private key format"))?;
     Ok(AgeKeyPair {
-        secret: curve_sk,
-        recipient: curve_pk,
+        secret: encode_private_key(&ed_keypair.private.to_bytes())?,
+        recipient: encode_public_key(&ed_keypair.public.0)?,
     })
 }
 
@@ -122,7 +120,7 @@ pub fn ssh_public_key_to_age(openssh_pk: &str) -> Result<String> {
     let ed_pk = ssh_pk
         .key_data()
         .ed25519()
-        .ok_or(anyhow!("Invalid Ed25519 public key format"))?
+        .ok_or_else(|| anyhow!("Invalid Ed25519 public key format"))?
         .0;
     encode_public_key(&ed_pk)
 }

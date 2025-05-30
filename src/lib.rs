@@ -14,7 +14,7 @@ mod tests {
         assert_eq!(
             recipient,
             "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqrsqsg6"
-        )
+        );
     }
 
     #[test]
@@ -37,7 +37,7 @@ AAAECfpgF0oYy6xXA5JRzgTNwNYLcUIGlZhkOEDV7XRuIYWyFrs5OngYGD5FHUaYqr3gAk
         assert_eq!(
             age.secret,
             "AGE-SECRET-KEY-1GQ46Z46GKWWDXR6KF96CYS9DWHWJWCV4KCCE4HA0C7ZZUY74JFPSAC42H6"
-        )
+        );
     }
 
     #[test]
