@@ -31,7 +31,6 @@ jobs:
         run: cargo build --verbose
       - name: Lint with Clippy
         run: "cargo clippy --all-targets --all-features -- -D warnings -W clippy::all -W clippy::pedantic -W clippy::nursery -W clippy::perf -W clippy::complexity -W clippy::suspicious -W clippy::style -W clippy::correctness"
-        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Run tests (debug)
         run: cargo test --all-targets --all-features
       - name: Run tests (release)
