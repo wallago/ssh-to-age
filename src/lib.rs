@@ -1,92 +1,57 @@
-use anyhow::{Result, anyhow};
-use base64::prelude::*;
-
-pub fn from_ssh_pub_key(ssh_pub_key: &str) -> Result<String> {
-    let ssh_pub_key_bytes = decode_ssh_pub_key(ssh_pub_key)?;
-    let age = convert_ssh_pub_key_to_age_recipient(&ssh_pub_key_bytes)?;
-    Ok(age)
-}
-
-// ssh-ed25519 <base64-encoded-bytes> [comment]
-fn decode_ssh_pub_key(ssh_pub_key: &str) -> Result<[u8; 32]> {
-    let mut parts = ssh_pub_key.split_whitespace();
-
-    if parts.next() != Some("ssh-ed25519") {
-        return Err(anyhow!("Expected ssh-ed25519 key"));
-    }
-
-    let base64_str = parts
-        .next()
-        .ok_or_else(|| anyhow!("Missing base64 part in SSH public key"))?;
-    let decoded = BASE64_STANDARD.decode(base64_str)?;
-    let cursor = std::io::Cursor::new(decoded);
-
-    let key_type_len = u32::from_be_bytes(
-        cursor.get_ref()[0..4]
-            .try_into()
-            .map_err(|e| anyhow!("Failed to convert slice to array: {e}"))?,
-    ) as usize;
-    let key_type = &cursor.get_ref()[4..4 + key_type_len];
-    if key_type != b"ssh-ed25519" {
-        return Err(anyhow!("Expected key type ssh-ed25519"));
-    }
-
-    let pubkey_offset = 4 + key_type_len;
-    let pubkey_len = u32::from_be_bytes(
-        cursor.get_ref()[pubkey_offset..pubkey_offset + 4]
-            .try_into()
-            .map_err(|e| anyhow!("Failed to convert slice to array: {e}"))?,
-    ) as usize;
-    if pubkey_len != 32 {
-        return Err(anyhow!("Expected 32-byte Ed25519 pubkey"));
-    }
-
-    let key_start = pubkey_offset + 4;
-    let key_bytes = &cursor.get_ref()[key_start..key_start + 32];
-
-    let mut key = [0u8; 32];
-    key.copy_from_slice(key_bytes);
-    Ok(key)
-}
-
-fn convert_ssh_pub_key_to_age_recipient(ssh_pub_key_bytes: &[u8; 32]) -> Result<String> {
-    let mut age_bytes = vec![0x01];
-    age_bytes.extend_from_slice(ssh_pub_key_bytes);
-    let hrp = bech32::Hrp::parse("age")?;
-    Ok(bech32::encode::<bech32::Bech32m>(
-        hrp,
-        &age_bytes.as_slice(),
-    )?)
-}
+pub mod convert;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn ssh_key_to_age_key() {
-        let result = from_ssh_pub_key(
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzGeuU9ZoBrWz2KPISui/XypsQOvogQqcHGIVig9mvn root@octopus",
+    fn test_ssh_pk_to_age() {
+        let result = convert::ssh_public_key_to_age(
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICFrs5OngYGD5FHUaYqr3gAk7NApAuFCL3cVaHLSWRXL",
         );
         assert!(result.is_ok());
+        let recipient = result.unwrap();
         assert_eq!(
-            result.unwrap(),
-            "age1qykvv7h984ngq66m8k9rep9w306l9fkyp6lgsy9fc8rzzk9q7e47w9ycwg6".to_string()
-        );
+            recipient,
+            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqrsqsg6"
+        )
+    }
 
-        let result = from_ssh_pub_key(
-            "AAAAC3NzaC1lZDI1NTE5AAAAICzGeuU9ZoBrWz2KPISui/XypsQOvogQqcHGIVig9mvn root@octopus",
-        );
-        assert!(result.is_err());
-
-        let result = from_ssh_pub_key(
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzGeuU9ZoBrWz2KPISui/XypsQOvogQqcHGIVig9mvn",
+    #[test]
+    fn test_ssh_sk_to_age() {
+        let result = convert::ssh_private_key_to_age(
+            b"-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAha7OTp4GBg+RR1GmKq94AJOzQKQLhQi93FWhy0lkVywAAAJDFKuT1xSrk
+9QAAAAtzc2gtZWQyNTUxOQAAACAha7OTp4GBg+RR1GmKq94AJOzQKQLhQi93FWhy0lkVyw
+AAAECfpgF0oYy6xXA5JRzgTNwNYLcUIGlZhkOEDV7XRuIYWyFrs5OngYGD5FHUaYqr3gAk
+7NApAuFCL3cVaHLSWRXLAAAADHJvb3RAb2N0b3B1cwE=
+-----END OPENSSH PRIVATE KEY-----",
         );
         assert!(result.is_ok());
-
-        let result = from_ssh_pub_key(
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICzGeuU9ZoBrWz2KPISui/XypsQOvogQqcHGIVig9mv root@octopus",
+        let (sk, recipient) = result.unwrap();
+        println!("{}", sk);
+        assert_eq!(
+            recipient,
+            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqrsqsg6"
         );
+        assert_eq!(
+            sk,
+            "AGE-SECRET-KEY-1GQ46Z46GKWWDXR6KF96CYS9DWHWJWCV4KCCE4HA0C7ZZUY74JFPSAC42H6"
+        )
+    }
+
+    #[test]
+    fn test_ssh_private_key_to_age_invalid_key() {
+        let invalid_key = b"not a valid private key";
+        let result = convert::ssh_private_key_to_age(invalid_key);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_ssh_public_key_to_age_invalid_key() {
+        let invalid_key = "not a valid private key";
+        let result = convert::ssh_public_key_to_age(invalid_key);
         assert!(result.is_err());
     }
 }
