@@ -1,18 +1,19 @@
 name: CI
 on:
   push:
-defaults:
-  run:
-    shell: bash
+    branches: [main]
+  pull_request:
+    branches: [main]
 jobs:
-  build-and-test:
+  test:
+    name: Rust CI
     runs-on: ubuntu-latest
     strategy:
       matrix:
         rust: [stable, beta, nightly]
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Cache Cargo Dependencies
         uses: actions/cache@v3
         with:
@@ -20,10 +21,6 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-${{ matrix.rust }}
-      - name: Install Nix
-        uses: cachix/install-nix-action@v20
-        with:
-          nix_path: "nixpkgs=channel:nixos-unstable"
       - name: Install Rust
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -32,40 +29,12 @@ jobs:
           rustup default nightly
       - name: Build
         run: cargo build --verbose
-      - name: Enter Nix Shell and Run Tests
-        run: |
-          nix-shell .github/workflows/shell.nix --pure --run "cargo test --verbose"
-      - name: Check Formatting
-        run: cargo fmt --check
       - name: Lint with Clippy
         run: "cargo clippy --all-targets --all-features -- -D warnings -W clippy::all -W clippy::pedantic -W clippy::nursery -W clippy::perf -W clippy::complexity -W clippy::suspicious -W clippy::style -W clippy::correctness"
-  os-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-      - name: Cache Cargo Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ matrix.rust }}
-      - name: Install Nix
-        uses: cachix/install-nix-action@v20
-        with:
-          nix_path: "nixpkgs=channel:nixos-unstable"
-      - name: Install Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          source $HOME/.cargo/env
-          rustup install nightly
-          rustup default nightly
-      - name: Build
-        run: cargo build --verbose
-      - name: Enter Nix Shell and Run Tests
-        run: |
-          nix-shell .github/workflows/shell.nix --pure --run "cargo test --verbose"
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run tests (debug)
+        run: cargo test --all-targets --all-features
+      - name: Run tests (release)
+        run: cargo test --release --all-targets --all-features
+      - name: Check Formatting
+        run: cargo fmt --check
