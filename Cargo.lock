@@ -640,6 +640,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ssh-to-age"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bech32",
+ "curve25519-dalek",
+ "ed25519-dalek",
+ "sha2",
+ "ssh-key",
+]
+
+[[package]]
 name = "subtle"
 version = "2.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -654,18 +666,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "tqt"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bech32",
- "curve25519-dalek",
- "ed25519-dalek",
- "sha2",
- "ssh-key",
 ]
 
 [[package]]
