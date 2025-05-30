@@ -23,10 +23,6 @@ fn ed25519_private_key_to_curve25519(ed_sk: &[u8; 32]) -> [u8; 32] {
 
 /// Converts an Ed25519 public key to a Curve25519 public key (Montgomery point).
 fn ed25519_public_key_to_curve25519(ed_pk: &[u8; 32]) -> Result<[u8; 32]> {
-    if ed_pk.len() != 32 {
-        anyhow::bail!("Invalid Ed25519 public key length");
-    }
-
     let compressed = CompressedEdwardsY(*ed_pk);
     let edwards_point = compressed
         .decompress()
@@ -53,7 +49,12 @@ fn encode_private_key(sk: &[u8; 32]) -> Result<String> {
     Ok(bech32::encode::<Bech32m>(hrp, &curve_sk)?.to_uppercase())
 }
 
-pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<(String, String)> {
+pub struct AgeKeyPair {
+    pub secret: String,
+    pub recipient: String,
+}
+
+pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<AgeKeyPair> {
     let ssh_sk = PrivateKey::from_openssh(openssh_sk)?;
     let ed_keypair = ssh_sk
         .key_data()
@@ -61,7 +62,10 @@ pub fn ssh_private_key_to_age(openssh_sk: &[u8]) -> Result<(String, String)> {
         .ok_or(anyhow!("Invalid Ed25519 private key format"))?;
     let curve_pk = encode_public_key(&ed_keypair.public.0)?;
     let curve_sk = encode_private_key(&ed_keypair.private.to_bytes())?;
-    Ok((curve_sk, curve_pk))
+    Ok(AgeKeyPair {
+        secret: curve_sk,
+        recipient: curve_pk,
+    })
 }
 
 pub fn ssh_public_key_to_age(openssh_pk: &str) -> Result<String> {
