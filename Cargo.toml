@@ -1,6 +1,6 @@
 [package]
 name = "ssh-to-age"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 authors = ["wallago <henrotte.hugo@gmail.com>"]
 description = "Convert OpenSSH Ed25519 keys to age encryption keys."
