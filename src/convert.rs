@@ -1,5 +1,5 @@
 use anyhow::{Context, Result, anyhow};
-use bech32::{Bech32m, Hrp};
+use bech32::{Bech32, Hrp};
 use curve25519_dalek::{MontgomeryPoint, edwards::CompressedEdwardsY, traits::IsIdentity};
 use sha2::{Digest, Sha512};
 use ssh_key::{PrivateKey, PublicKey};
@@ -40,13 +40,13 @@ fn ed25519_public_key_to_curve25519(ed_pk: &[u8; 32]) -> Result<[u8; 32]> {
 fn encode_public_key(pk: &[u8; 32]) -> Result<String> {
     let curve_pk = ed25519_public_key_to_curve25519(pk)?;
     let hrp = Hrp::parse("age")?;
-    Ok(bech32::encode::<Bech32m>(hrp, &curve_pk)?)
+    Ok(bech32::encode::<Bech32>(hrp, &curve_pk)?)
 }
 
 fn encode_private_key(sk: &[u8; 32]) -> Result<String> {
     let curve_sk = ed25519_private_key_to_curve25519(sk);
     let hrp = Hrp::parse("AGE-SECRET-KEY-")?;
-    Ok(bech32::encode::<Bech32m>(hrp, &curve_sk)?.to_uppercase())
+    Ok(bech32::encode::<Bech32>(hrp, &curve_sk)?.to_uppercase())
 }
 
 pub struct AgeKeyPair {
