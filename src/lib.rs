@@ -13,7 +13,7 @@ mod tests {
         let recipient = result.unwrap();
         assert_eq!(
             recipient,
-            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqrsqsg6"
+            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqkvsudc"
         );
     }
 
@@ -32,11 +32,11 @@ AAAECfpgF0oYy6xXA5JRzgTNwNYLcUIGlZhkOEDV7XRuIYWyFrs5OngYGD5FHUaYqr3gAk
         let age = result.unwrap();
         assert_eq!(
             age.recipient,
-            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqrsqsg6"
+            "age1wy42r2p2c67ckywgq8xj7ejf6eykqfu623wktxeh729rtagu4fkqkvsudc"
         );
         assert_eq!(
             age.secret,
-            "AGE-SECRET-KEY-1GQ46Z46GKWWDXR6KF96CYS9DWHWJWCV4KCCE4HA0C7ZZUY74JFPSAC42H6"
+            "AGE-SECRET-KEY-1GQ46Z46GKWWDXR6KF96CYS9DWHWJWCV4KCCE4HA0C7ZZUY74JFPSGY9XJC"
         );
     }
 
